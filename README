@@ -1,0 +1,16 @@
+--------------------------------------------------------------------
+                           SVNwatch
+--------------------------------------------------------------------
+
+Author : Rémi Flamary
+
+This program aims at checking periodically svn commits in a given list of repositorys.
+
+
+1. Description
+--------------
+
+
+2. Installation
+---------------
+
