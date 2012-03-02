@@ -138,7 +138,9 @@ class svnwatch():
         self.countrepo=[i+1 for i in self.countrepo]
         
         for i,repo in enumerate(self.repos):
-            if self.countrepo[i]>=self.config['repos'][self.reponames[i]]['nb_sleep_loop']:
+            #print 'test rep :',repo, ' i', i, 'conteur', self.countrepo[i]
+            #print self.config['repos'][self.reponames[i]]['nb_sleep_loop']
+            if self.countrepo[i]>=int(self.config['repos'][self.reponames[i]]['nb_sleep_loop']):
                 self.countrepo[i]=0
                 repo.update()
             else:
@@ -167,7 +169,7 @@ class svnwatch():
                         
             time.sleep(int(self.config['sleep_loop']))
             
-            print 'end loop'
+            #print 'end loop'
         
         
 
@@ -190,7 +192,7 @@ def read_config(config_file=''):
 
 def notify(repo,rev0,rev1,paths, authors):
     """Display the changed paths using libnotify"""
-    title_string = 'New Commits:'+repo
+    title_string = 'New Commits: ['+repo +']'
     path_string = ', '.join(paths)
     author_string = ', '.join(authors)
     message_string = 'Authors: ' + author_string + '\nFiles: ' + path_string
@@ -205,7 +207,7 @@ def log_message(repo,rev0,rev1,paths, authors):
     now = now.strftime("%c")
     path_string = ', '.join(paths)
     author_string = ', '.join(authors)
-    print "[{reponame}] -- Rev {rev0} -> {rev1}, {now} \nAuthors: {authors}\nFiles: {files}".format(now=now,reponame=repo,rev0=rev0,rev1=rev1,authors=author_string,files=path_string)
+    print "[{reponame}] -- Rev {rev0} -> {rev1}, {now} \n\tAuthors: {authors}\n\tFiles: {files}".format(now=now,reponame=repo,rev0=rev0,rev1=rev1,authors=author_string,files=path_string)
     
 
 
@@ -281,6 +283,11 @@ def main(argv):
     parser_del = subparsers.add_parser('remove', help='remove an repository') 
     parser_del.add_argument('reponame', type=str,help='name of the repository') 
       
+    parser_look = subparsers.add_parser('look', help='see current commits for the reporitories')
+    #parser_loop.add_argument('-n','--notify', action='store_true', help="notify commits with libnotify")       
+    #parser_loop.add_argument('-l','--log', action='store_true', help="log commits")       
+            
+
     args= parser.parse_args()
     
     
@@ -295,6 +302,9 @@ def main(argv):
         add_repo(args)
     elif task=='remove':
         remove_repo(args)
+    elif task=='look':
+        watch=svnwatch()
+        watch.check_changed()        
             
         
 
