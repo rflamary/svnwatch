@@ -11,7 +11,7 @@ this script is based on the program svnnotify
 """
 
 try:
-    import pysvn, pynotify, configobj
+    import pysvn, pynotify, configobj, argparse
 except:
     print "Error while loading external depencencies."
     print "Make sure 'pysvn' and 'pynotify' is installed."
@@ -135,8 +135,14 @@ class svnwatch():
             
     def update(self):
         
-        for repo in self.repos:
-            repo.update()
+        self.countrepo=[i+1 for i in self.countrepo]
+        
+        for i,repo in enumerate(self.repos):
+            if self.countrepo[i]>=self.conf['repos'][self.reponames[i]]['nb_sleep_loop']:
+                self.countrepo[i]=0
+                repo.update()
+            else:
+                repo.server_revision=repo.server_revision_old
             
     def check_changed(self):
 
@@ -157,12 +163,11 @@ class svnwatch():
             
             self.check_changed()            
             
-            self.update()
-            
+            self.update()           
                         
-            time.sleep(int(self.config['sleep']))
+            time.sleep(int(self.config['sleep_loop']))
             
-            print 'end loop'
+            #print 'end loop'
         
         
 
@@ -181,6 +186,7 @@ def read_config(config_file=''):
         print e
         exit()
     return conf
+    
 
 def notify(repo,rev0,rev1,paths, authors):
     """Display the changed paths using libnotify"""
@@ -211,22 +217,96 @@ def check_install():
         f = open(conf_dir+ conf_file, 'w')
         f.write(cfile_init)
         f.close()    
+        
+def print_repo_list():
+    conf=read_config()
+    print "One sleep loop:",int(conf['sleep_loop'])/60,'minutes'
+    print "Repository list:"
+    for repo in conf['repos']:
+        temp=conf['repos'][repo]
+        print '[{reponame}]\n\tlocal repository: {path}\n\tusername: {uname}\n\tnb. of sleep loops: {sleep}'.format(reponame=repo,path=temp['local'],uname=temp['username'],sleep=temp['nb_sleep_loop'])
+            
+def add_repo(args):
+    conf=read_config()
+    conf['repos'][args.reponame]={}
+    conf['repos'][args.reponame]['local']=args.path
+    conf['repos'][args.reponame]['username']=args.username
+    conf['repos'][args.reponame]['password']=args.password
+    conf['repos'][args.reponame]['nb_sleep_loop']=args.nb_sleep_loop
+    conf.write()
     
+def remove_repo(args):
+    conf=read_config()
+    try:
+        del(conf['repos'][args.reponame])
+    except BaseException as e:
+        print "Nonexistent repository"
+        exit()
+    conf.write()
+
+def main(argv):
+    # main function...
+    
+    # check if installed properly
+    check_install()
+    
+    
+
+    
+    parser = argparse.ArgumentParser(prog='svnwatch',
+        description='''This program is a command line tool that cheacks for new commits in a svn''',
+    epilog=''' For any comment contact the author''')   
+    
+    #parser.add_argument('task', metavar='task', type=str, nargs=1,
+    #               help='the task that should be performed',action="store")
+    subparsers = parser.add_subparsers(help='choose a task',dest="task")
+    
+
+    
+    # add parser for view 
+    parser_loop = subparsers.add_parser('loop', help='loop that periodically checks for new commits')
+    #parser_loop.add_argument('-n','--notify', action='store_true', help="notify commits with libnotify")       
+    #parser_loop.add_argument('-l','--log', action='store_true', help="log commits")       
+                
+    # add parser for list 
+    parser_list = subparsers.add_parser('list', help='list the current checked repositories')
+    #parser_view.add_argument('key', type=str, help='bibtex key or pattern for opening file')
+    #parser_update = subparsers.add_parser('update', help='update the database (from files and bib file)')
+    #parser_configedit.add_argument('-e','--editor', type=str, help='text editor default: gedit',default='gedit',dest='editor')
+         
+    #parser.print_help()
+    parser_add = subparsers.add_parser('add', help='list the current checked repositories')
+    parser_add.add_argument('reponame', type=str,help='name of the repository') 
+    parser_add.add_argument('path', type=str,help='path of the local repository') 
+    parser_add.add_argument('username', type=str,help='username for the repository') 
+    parser_add.add_argument('password', type=str,help='password for the repository') 
+    parser_add.add_argument('nb_sleep_loop', type=int,help='number of sleep loops between checks') 
+    
+    parser_del = subparsers.add_parser('remove', help='remove an repository') 
+    parser_del.add_argument('reponame', type=str,help='name of the repository') 
+      
+    args= parser.parse_args()
+    
+    
+    task = args.task
+    
+    if task=='loop':
+        watch=svnwatch()
+        watch.loop()
+    elif task=='list':
+        print_repo_list()
+    elif task=='add':
+        add_repo(args)
+    elif task=='remove':
+        remove_repo(args)
+            
+        
 
 
 if __name__ == '__main__':
     #conf=read_config()
     #repo=svnrepo(conf['repos']['ICML2012'])
-    watch=svnwatch()
-    watch.check_changed()
-    
+    #watch=svnwatch()
+    #watch.check_changed()
     pass
-#    read_config()
-#    print '- Press %s to quit -' % '^C'
-#    last_revision = None
-#    while True:
-#        last_revision, authors, paths = discover_changes(last_revision)
-#        if paths is not None:
-#            log_message(paths, authors)
-#            #notify(paths, authors)
-#        time.sleep(2*60)
+
