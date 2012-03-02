@@ -10,7 +10,34 @@ This program aims at checking periodically svn commits in a given list of reposi
 1. Description
 --------------
 
+svnwatch contains a loop that periodicaly checks for svn commits on a server. A log is writen in the terminal when the server has a revision number greater that the local copy. A notification is sent to the system via libnotify.
 
-2. Installation
----------------
+type svnwatch -h for more information on how to add a repository.
 
+The configuration file should be located in ~/.config/svnwatch.ini and contain the following informations:
+
+##########################################
+# in second 60 means check every minuts
+sleep_loop=60
+
+# print changes to screen
+log=True
+
+# notify os (linux)
+notify=True
+
+# list of repositories
+[repos]
+
+[[NameOfTheRepositoryNb1]]
+local=/your/local/folder
+username='yourusername'
+password=''
+nb_sleep_loop=1 # number of sleeps between checks
+
+[[NameOfTheRepositoryNb2]]
+local=/your/local/folder
+username='yourusername'
+password=''
+nb_sleep_loop=1 # number of sleeps between checks
+###########################################
