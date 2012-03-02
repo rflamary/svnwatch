@@ -270,11 +270,7 @@ def main(argv):
                 
     # add parser for list 
     parser_list = subparsers.add_parser('list', help='list the current checked repositories')
-    #parser_view.add_argument('key', type=str, help='bibtex key or pattern for opening file')
-    #parser_update = subparsers.add_parser('update', help='update the database (from files and bib file)')
-    #parser_configedit.add_argument('-e','--editor', type=str, help='text editor default: gedit',default='gedit',dest='editor')
-         
-    #parser.print_help()
+
     parser_add = subparsers.add_parser('add', help='list the current checked repositories')
     parser_add.add_argument('reponame', type=str,help='name of the repository') 
     parser_add.add_argument('path', type=str,help='path of the local repository') 
@@ -304,9 +300,6 @@ def main(argv):
 
 
 if __name__ == '__main__':
-    #conf=read_config()
-    #repo=svnrepo(conf['repos']['ICML2012'])
-    #watch=svnwatch()
-    #watch.check_changed()
+
     pass
 
