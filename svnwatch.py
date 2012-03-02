@@ -138,7 +138,7 @@ class svnwatch():
         self.countrepo=[i+1 for i in self.countrepo]
         
         for i,repo in enumerate(self.repos):
-            if self.countrepo[i]>=self.conf['repos'][self.reponames[i]]['nb_sleep_loop']:
+            if self.countrepo[i]>=self.config['repos'][self.reponames[i]]['nb_sleep_loop']:
                 self.countrepo[i]=0
                 repo.update()
             else:
@@ -167,7 +167,7 @@ class svnwatch():
                         
             time.sleep(int(self.config['sleep_loop']))
             
-            #print 'end loop'
+            print 'end loop'
         
         
 
