@@ -1,0 +1,18 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb 29 14:38:58 2012
+
+Script to notify the user for changes in a subversion repository.
+
+@author: remi.flamary àt gmail.com
+"""
+
+import sys,svnwatch
+    
+
+
+if __name__ == '__main__':
+    svnwatch.main(sys.argv[1:])
+ 
+    pass
